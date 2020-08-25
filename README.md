@@ -26,3 +26,36 @@ node sermon.js device-alias // device auto-detect with alias "device-alias"
 
 node sermon.js device-alias /dev/cu.usbserial-1410 // specific device with alias "device-alias"
 ```
+
+### Auto-start on boot for Raspberry PI:
+
+Raspberry Debian (Raspbian) uses `/etc/rc.local` file to start apps on boot. It's wise to log the device's IP address as well, so you can read it out from HDMI attached monitor once in unknown environment.
+
+Sample /etc/rc.local:
+
+```
+pi@raspberrypi:/etc $ cat rc.local 
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+# Print the IP address
+_IP=$(hostname -I) || true
+if [ "$_IP" ]; then
+  printf "My IP address is %s\n" "$_IP"
+fi
+
+printf "Starting Serial/MQTT monitor..."
+/usr/bin/sudo -u pi /home/pi/keyguru-sermon/node_modules/forever/bin/forever start /home/pi/keyguru-sermon/sermon.js
+
+exit 0
+```
